@@ -1,6 +1,6 @@
 # Retail Intelligence Dashboard
 
-An end-to-end retail analytics project built entirely in **Microsoft Excel**. Messy raw sales and inventory exports are cleaned with **Power Query**, modelled as a **star schema in Power Pivot**, measured with **DAX**, and presented as an interactive executive dashboard with slicers that cross-filter every chart.
+An end-to-end retail analytics project built entirely in **Microsoft Excel**. Messy raw sales and inventory exports are cleaned with **Power Query**, modelled as a **galaxy schema in Power Pivot** (three star schemas sharing the same dimensions), measured with **DAX**, and presented as an interactive executive dashboard with slicers that cross-filter every chart.
 
 ![Dashboard](images/dashboard.png)
 
@@ -34,7 +34,7 @@ A grocery chain with **15 physical stores across 8 districts plus an online stor
 | Area | What was used |
 |---|---|
 | Data cleaning (ETL) | Power Query (M): type fixing, multi-format date parsing, text standardisation, de-duplication, **unpivot**, **append** |
-| Data modelling | Power Pivot: star schema, 3 fact tables, 4 dimensions, 9 one-to-many relationships |
+| Data modelling | Power Pivot: galaxy schema (fact constellation), 3 fact tables, 4 conformed dimensions, 9 one-to-many relationships |
 | Calculations | DAX: `SUM`, `COUNTROWS`, `AVERAGE`, `DIVIDE` |
 | Reporting | PivotTables and PivotCharts from the Data Model, slicers with report connections, dynamic KPI cards linked to cells, custom number formats |
 | Design | F-pattern dashboard layout and a consistent colour system |
@@ -89,7 +89,9 @@ The raw exports contain realistic problems, all fixed in Power Query:
 
 See [`docs/build_guide.md`](docs/build_guide.md) for every step, and [`/power-query`](power-query) for the code.
 
-### 2. Data model (star schema)
+### 2. Data model (galaxy schema)
+
+The model is a **galaxy schema**, also called a *fact constellation*: three fact tables, each forming its own star, that share **conformed dimensions** (`Dim_Stores`, `Dim_Products`, `Dim_Calendar`). Sales, inventory and forecast are recorded at different levels of detail (daily transactions, weekly store-SKU snapshots, monthly store forecasts), so they can't live in one fact table. Shared dimensions let them still be filtered together.
 
 ![Data model](images/data_model.png)
 
