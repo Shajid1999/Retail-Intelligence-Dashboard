@@ -151,7 +151,7 @@ The forecast is monthly and sales are daily. Instead of a separate month table, 
 
 ## How to use
 
-1. Download `Retail_Intelligence_Dashboard.xlsx` (GitHub: open the file → **Download raw file**).
+1. Download `Retail_Intelligence_Dashboard.xlsx` (click the file on GitHub, then the **Download raw file** button ⤓).
 2. Open it in **Excel for Windows** (Power Pivot isn't available on Mac or the web, but the dashboard still displays there).
 3. Click **Enable Content**, then use the slicers on the `Dashboard` sheet.
 4. To see the model: **Power Pivot → Manage → Diagram View**. To see the queries: **Data → Queries & Connections**.
