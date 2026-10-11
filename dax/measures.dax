@@ -1,0 +1,68 @@
+// =====================================================================
+// DAX measures — Retail Intelligence Dashboard (Excel Power Pivot)
+// Exported from the workbook's Data Model.
+// Add via: Power Pivot > Manage > (select the fact table) > Calculation Area,
+// or Power Pivot ribbon > Measures > New Measure.
+// =====================================================================
+
+
+// ---------- Fact_Sales : sales performance --------------------------
+
+Total Sales :=
+    SUM ( Fact_Sales[Amount] )
+// Net revenue. Amount = Qty * UnitPrice * (1 - DiscountPct), calculated in Power Query.
+
+Total Units Sold :=
+    SUM ( Fact_Sales[Qty] )
+
+Transaction Count :=
+    COUNTROWS ( Fact_Sales )
+// One row per POS transaction (in-store) or per order (online).
+
+AOV :=
+    DIVIDE ( [Total Sales], [Transaction Count], 0 )
+// Average Order Value.
+
+
+// ---------- Fact_Inventory : stock health ---------------------------
+
+Total Stock Qty :=
+    SUM ( Fact_Inventory[StockQty] )
+
+Avg Weekly Stock :=
+    AVERAGE ( Fact_Inventory[StockQty] )
+// Average units on hand per store / SKU / week snapshot.
+
+Current Stock :=
+    SUM ( Fact_Inventory[StockQty] )
+
+Reorder Point :=
+    SUM ( Fact_Inventory[ReorderLevel] )
+
+Stock Health Ratio :=
+    DIVIDE ( [Current Stock], [Reorder Point], 0 )
+// > 1 = stock above reorder level; < 1 = needs replenishment.
+
+
+// ---------- Fact_Forecast : demand planning -------------------------
+
+Total Forecast Qty :=
+    SUM ( Fact_Forecast[ForecastQty] )
+
+Total Actual Qty :=
+    SUM ( Fact_Forecast[ActualQty] )
+
+Forecast Variance :=
+    [Total Actual Qty] - [Total Forecast Qty]
+// Positive = demand beat forecast (stock-out risk); negative = over-forecast.
+
+
+// ---------- Suggested improvement (not yet in the workbook) ---------
+// Stock is a snapshot, so summing it across weeks overstates "current" stock.
+// A point-in-time version returns only the latest week in the current filter:
+//
+// Current Stock (Latest Week) :=
+//     CALCULATE (
+//         SUM ( Fact_Inventory[StockQty] ),
+//         LASTDATE ( Fact_Inventory[Date] )
+//     )
