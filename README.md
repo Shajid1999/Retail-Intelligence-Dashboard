@@ -107,6 +107,7 @@ Shared dimensions let one **District** or **Category** slicer filter sales and i
 | Total Units Sold | `SUM(Fact_Sales[Qty])` |
 | Transaction Count | `COUNTROWS(Fact_Sales)` |
 | AOV | `DIVIDE([Total Sales], [Transaction Count], 0)` |
+| Current Stock | `CALCULATE(SUM(Fact_Inventory[StockQty]), LASTDATE(Fact_Inventory[Date]))` |
 | Stock Health Ratio | `DIVIDE([Current Stock], [Reorder Point], 0)` |
 | Forecast Variance | `[Total Actual Qty] - [Total Forecast Qty]` |
 
@@ -138,11 +139,14 @@ Stacking four KPI cards vertically pushed the charts off-screen and left empty s
 **4. Monthly forecast vs daily sales**
 The forecast is monthly and sales are daily. Instead of a separate month table, `Fact_Forecast[MonthDate]` (always the 1st of the month) links to the same daily `Dim_Calendar`, so both measures share one month axis and react to the same filters.
 
+**5. "Current Stock" was about 9× too high**
+Inventory is a weekly *snapshot*, so stock can be added across stores but not across weeks. The first version used `SUM(StockQty)`, which added all 8 weeks together (e.g. 6,085 units for one SKU instead of 671).
+**Fix:** I wrapped both **Current Stock** and **Reorder Point** in `CALCULATE(…, LASTDATE(Fact_Inventory[Date]))` so they read only the latest week. Using the fact table's own dates (not the calendar's 31 Dec) guarantees the latest week that actually has data. Result: **12 of 72 SKUs** are now correctly flagged below their reorder point (Stock Health Ratio < 1).
+
 ---
 
 ## Known limitations and next steps
 
-- **Current Stock** sums every weekly snapshot in the filter. A true point-in-time figure would use `LASTDATE` (included as a suggestion in `measures.dax`).
 - The **Category** slicer can't filter the forecast line, because the forecast is planned per store, not per product.
 - In-store sales and 15 guest online orders have no customer ID, so customer-level analysis covers registered online customers only.
 - Next step: add time-intelligence measures (MTD, prior-period growth) and an out-of-stock rate KPI.

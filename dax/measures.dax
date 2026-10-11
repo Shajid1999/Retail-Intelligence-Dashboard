@@ -34,10 +34,19 @@ Avg Weekly Stock :=
 // Average units on hand per store / SKU / week snapshot.
 
 Current Stock :=
-    SUM ( Fact_Inventory[StockQty] )
+    CALCULATE (
+        SUM ( Fact_Inventory[StockQty] ),
+        LASTDATE ( Fact_Inventory[Date] )
+    )
+// Stock is a snapshot (semi-additive): it can be summed across stores and SKUs,
+// but not across weeks. LASTDATE keeps only the latest week in the current filter.
 
 Reorder Point :=
-    SUM ( Fact_Inventory[ReorderLevel] )
+    CALCULATE (
+        SUM ( Fact_Inventory[ReorderLevel] ),
+        LASTDATE ( Fact_Inventory[Date] )
+    )
+// Uses the same latest week as Current Stock so the ratio below compares like with like.
 
 Stock Health Ratio :=
     DIVIDE ( [Current Stock], [Reorder Point], 0 )
@@ -56,13 +65,3 @@ Forecast Variance :=
     [Total Actual Qty] - [Total Forecast Qty]
 // Positive = demand beat forecast (stock-out risk); negative = over-forecast.
 
-
-// ---------- Suggested improvement (not yet in the workbook) ---------
-// Stock is a snapshot, so summing it across weeks overstates "current" stock.
-// A point-in-time version returns only the latest week in the current filter:
-//
-// Current Stock (Latest Week) :=
-//     CALCULATE (
-//         SUM ( Fact_Inventory[StockQty] ),
-//         LASTDATE ( Fact_Inventory[Date] )
-//     )
